@@ -1,0 +1,1 @@
+# allumnova-ai-prompt-librar
