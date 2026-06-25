@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allumnova AI - Digital CV Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen p-8 font-sans">
+
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">🚀 Allumnova AI: Digital CV Generator</h1>
+        <p class="text-gray-500 mb-8">Prototype: Simulating raw JSON profile to structured AI output.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h2 class="text-xl font-semibold mb-4 text-blue-600">1. Input Raw Profile Data (JSON)</h2>
+                <textarea id="jsonInput" class="w-full h-96 p-4 bg-gray-900 text-green-400 font-mono text-sm rounded-md focus:outline-none" spellcheck="false">
+{
+  "full_name": "Arjun Sharma",
+  "education": "B.Tech in Information Technology",
+  "technical_skills": ["C++", "JavaScript", "Python"],
+  "projects": ["Smart Campus Job Allocator"]
+}
+                </textarea>
+                <button onclick="generateCV()" id="generateBtn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition-all">
+                    Generate Digital CV with AI
+                </button>
+            </div>
+
+            
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 relative">
+                <h2 class="text-xl font-semibold mb-4 text-purple-600">2. AI Rendered Profile</h2>
+                
+               
+                <div id="loadingState" class="hidden absolute inset-0 bg-white/90 flex flex-col items-center justify-center rounded-lg z-10">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+                    <p class="text-gray-600 font-medium text-sm">Injecting prompt & pinging LLM...</p>
+                </div>
+
+                
+                <div id="cvOutput" class="hidden space-y-6">
+                    <div class="border-b pb-4">
+                        <h3 id="outName" class="text-2xl font-bold text-gray-900"></h3>
+                        <p id="outHeadline" class="text-lg text-purple-600 font-medium mt-1"></p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Executive Summary</h4>
+                        <p id="outSummary" class="text-gray-700 leading-relaxed"></p>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Core Competencies</h4>
+                        <div id="outSkills" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-md border border-purple-100">
+                        <h4 class="text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">Suggested Icebreaker</h4>
+                        <p id="outIcebreaker" class="text-purple-900 italic text-sm"></p>
+                    </div>
+                </div>
+                
+               
+                <div id="emptyState" class="h-96 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-md">
+                    Waiting for AI generation...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateCV() {
+            const btn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loadingState');
+            const output = document.getElementById('cvOutput');
+            const empty = document.getElementById('emptyState');
+            const rawJson = document.getElementById('jsonInput').value;
+
+           
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            empty.classList.add('hidden');
+            output.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+           
+            let userName = "User";
+            try {
+                const parsedData = JSON.parse(rawJson);
+                userName = parsedData.full_name || "User";
+            } catch(e) {
+                alert("Invalid JSON input!");
+                // reset states...
+                return;
+            }
+
+            /* 
+               NOTE FOR ME: 
+               In a real app, you would use fetch() here to hit your backend API, 
+               which would run the LLM. For tonight's prototype, we are simulating 
+               the API delay (2 seconds) and returning mocked AI JSON.
+            */
+            setTimeout(() => {
+                
+                const mockApiResponse = {
+                    "professional_headline": "Software Engineering Student | Specializing in Full-Stack & Algorithms",
+                    "executive_summary": "Driven Information Technology student with a passion for solving complex algorithmic challenges. Experienced in building full-stack applications and eager to apply technical skills in C++ and JavaScript to scalable software products.",
+                    "core_competencies": ["C++", "JavaScript", "Python", "Full-Stack Development"],
+                    "suggested_icebreaker": "Hi! I noticed we share an interest in full-stack development—I'd love to connect and hear about your journey."
+                };
+
+               
+                document.getElementById('outName').innerText = userName;
+                document.getElementById('outHeadline').innerText = mockApiResponse.professional_headline;
+                document.getElementById('outSummary').innerText = mockApiResponse.executive_summary;
+                document.getElementById('outIcebreaker').innerText = mockApiResponse.suggested_icebreaker;
+                
+                const skillsContainer = document.getElementById('outSkills');
+                skillsContainer.innerHTML = '';
+                mockApiResponse.core_competencies.forEach(skill => {
+                    const span = document.createElement('span');
+                    span.className = "px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium";
+                    span.innerText = skill;
+                    skillsContainer.appendChild(span);
+                });
+
+              
+                loading.classList.add('hidden');
+                output.classList.remove('hidden');
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
