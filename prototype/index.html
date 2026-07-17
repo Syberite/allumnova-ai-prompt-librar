@@ -105,35 +105,42 @@
             */
             setTimeout(() => {
                 
-                const mockApiResponse = {
-                    "professional_headline": "Software Engineering Student | Specializing in Full-Stack & Algorithms",
-                    "executive_summary": "Driven Information Technology student with a passion for solving complex algorithmic challenges. Experienced in building full-stack applications and eager to apply technical skills in C++ and JavaScript to scalable software products.",
-                    "core_competencies": ["C++", "JavaScript", "Python", "Full-Stack Development"],
-                    "suggested_icebreaker": "Hi! I noticed we share an interest in full-stack development—I'd love to connect and hear about your journey."
-                };
-
-               
+              // REAL API FETCH CALL
+            fetch('http://127.0.0.1:8000/api/generate-cv', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ raw_data: rawJson })
+            })
+            .then(response => response.json())
+            .then(aiResponse => {
+                // Render the REAL AI response
                 document.getElementById('outName').innerText = userName;
-                document.getElementById('outHeadline').innerText = mockApiResponse.professional_headline;
-                document.getElementById('outSummary').innerText = mockApiResponse.executive_summary;
-                document.getElementById('outIcebreaker').innerText = mockApiResponse.suggested_icebreaker;
+                document.getElementById('outHeadline').innerText = aiResponse.professional_headline || "Headline Not Found";
+                document.getElementById('outSummary').innerText = aiResponse.executive_summary || "Summary Not Found";
+                document.getElementById('outIcebreaker').innerText = aiResponse.suggested_icebreaker || "No icebreaker generated.";
                 
                 const skillsContainer = document.getElementById('outSkills');
                 skillsContainer.innerHTML = '';
-                mockApiResponse.core_competencies.forEach(skill => {
-                    const span = document.createElement('span');
-                    span.className = "px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium";
-                    span.innerText = skill;
-                    skillsContainer.appendChild(span);
-                });
+                
+                if (aiResponse.core_competencies) {
+                    aiResponse.core_competencies.forEach(skill => {
+                        const span = document.createElement('span');
+                        span.className = "px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium";
+                        span.innerText = skill;
+                        skillsContainer.appendChild(span);
+                    });
+                }
 
-              
                 loading.classList.add('hidden');
                 output.classList.remove('hidden');
                 btn.disabled = false;
                 btn.classList.remove('opacity-50', 'cursor-not-allowed');
-
-            }, 2000);
+            })
+            .catch(error => {
+                alert("Please start the Python FastAPI backend server first.");
+                loading.classList.add('hidden');
+                btn.disabled = false;
+            });
         }
     </script>
 </body>
